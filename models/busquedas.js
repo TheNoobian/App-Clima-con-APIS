@@ -1,12 +1,29 @@
 const axios = require('axios');
+const fs = require ('fs');
+const { log } = require('util');
 
 
 class Busquedas {
-    historial = '';
+    historial = [];
+    dbPath = './db/database.json';
 
     constructor(){
-        //leer db si existe
+        this.leerDB();
     }
+
+    HistorialCapitalizado() {
+
+        return this.historial.map(lugar => {
+            let palabras = lugar.split(' ');
+            palabras = palabras.map(p => p[0].toUpperCase() + p.substring(1));
+
+            return palabras.join(' ')
+        })
+
+        
+       
+    }
+    
 
     get paramsMapbox () {
         return {
@@ -68,7 +85,7 @@ class Busquedas {
 
             const resp = await intance.get();
 
-            
+
             // resp.data
 
             return {
@@ -86,11 +103,56 @@ class Busquedas {
         }
     }
 
+    
+
+    agregarHistorial(lugar) {
+
+        if (this.historial.includes(lugar.toLowerCase())) {
+            return;
+        }
+
+        this.historial.unshift(lugar.toLowerCase() );
+        
+        this.guardarDB();
+    }
+
+    guardarDB() {
+
+        const payload = {
+            historial: this.historial
+        }
+
+        fs.writeFileSync(this.dbPath, JSON.stringify(payload))
+
+    }
+
+    leerDB() {
+        //debe existir db...
+        if (!fs.existsSync(this.dbPath)){
+            return null;
+        }
+        //const info... readfylesinc .... path.... encoding utf-8
+
+        const info = fs.readFileSync( this.dbPath, { encoding: 'utf-8'});
+        const data = JSON.parse(info);
+
+        this.historial = data.historial;   // tiene que ser data.historial porque el json parse extrae como objeto y para hacer un foreach en el index se necesita que sea un array
+        
+
+        }
 
 
 
 
-}
+
+
+    }
+
+
+
+
+
+
 
 
 module.exports = Busquedas;

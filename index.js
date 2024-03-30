@@ -9,6 +9,8 @@ const main = async() => {
     let opt;
     const busquedas = new Busquedas();
 
+    await pausa();
+
 
     do {
 
@@ -26,7 +28,12 @@ const main = async() => {
 
                 // seleccionar lugar
                 const id = await listadoLugares(lugares);
+
+                if (id === 0) continue;
+
                 const lugarSel = lugares.find( lugar => lugar.id === id )
+
+                busquedas.agregarHistorial(lugarSel.nombre)
 
                 // sacar datos del clima
 
@@ -49,7 +56,10 @@ const main = async() => {
             break;
 
             case 2:
-                console.log("eligio la opcion 2");
+                busquedas.HistorialCapitalizado().forEach((lugar,i) => {
+                    const idx = `${i + 1}.`.green
+                    console.log(`${idx} ${lugar}`);
+                });
 
             break;
 
